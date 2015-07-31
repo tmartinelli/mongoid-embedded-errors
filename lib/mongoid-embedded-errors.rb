@@ -1,6 +1,7 @@
 require 'mongoid'
 require "mongoid-embedded-errors/version"
 require "mongoid-embedded-errors/embedded_in"
+require "active_model/errors_details"
 
 module Mongoid
   module EmbeddedErrors
@@ -17,7 +18,7 @@ module Mongoid
       self.embedded_relations.each do |name, metadata|
         # name is something like pages or sections
         # if there is an 'is invalid' message for the relation then let's work it:
-        if errs[name]
+        if errs.has_key?(name.to_sym) && errs.details[name.to_sym].first[:error] == :invalid
           # first delete the unless 'is invalid' error for the relation
           errs.delete(name.to_sym)
           # next, loop through each of the relations (pages, sections, etc...)
@@ -30,6 +31,7 @@ module Mongoid
                 errs.delete(key)
                 errs[key] = v
                 errs[key].flatten!
+                errs.details[key] = rel.errors.details[k]
               end
             end
           end

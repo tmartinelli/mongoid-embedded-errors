@@ -11,6 +11,9 @@ class Article
 
   embeds_many :pages
   embeds_one :annotation
+  embeds_one :author
+
+  validates :author, presence: true
 end
 
 class Page
@@ -45,5 +48,14 @@ class Annotation
   field :text, type: String
 
   validates :text, presence: true
+end
 
+class Author
+  include Mongoid::Document
+
+  embedded_in :article, inverse_of: :author
+
+  field :name, type: String
+
+  validates :name, presence: true
 end
